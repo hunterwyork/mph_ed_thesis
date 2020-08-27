@@ -17,14 +17,24 @@ library(boot)
 library(gtools)
 library(ggplot2)
 library(gridExtra)
-library(tidycensus, lib.loc = "/home/j/temp/hyork/rlibs")
+library(tidycensus)
 
 ########################################################################
 ## Pull in SEDA Data
 ########################################################################
 
-#import seda data
-"/home/j/temp/hyork/seda_geodist_long_gcs_v30.dta" %>% read_dta() %>% data.table()-> seda_gcs
+# #import seda data
+# setwd("/Users/hyork/Documents/projects/mph_ed_thesis/")
+# "reference/seda_geodist_long_gcs_v30.dta" %>% read_dta() %>% data.table()-> seda_gcs
+# 
+# #save as two smaller files for git 
+# seda_gcs[1:500000] %>% saveRDS("reference/eda_geodist_long_gcs_v30_1.rds")
+# seda_gcs[500001:nrow(seda_gcs)] %>% saveRDS("reference/eda_geodist_long_gcs_v30_2.rds")
+
+#read in smaller files
+seda_gcs <- list.files("reference", pattern = "eda_geodist_long_gcs_v30") %>% 
+  lapply(readRDS) %>% 
+  rbindlist()
 
 #cast long and rename variables
 seda_long <- melt(seda_gcs, id.vars = c("leaidC", "leanm", "fips", "stateabb", "grade", "year", "subject"))
@@ -55,16 +65,18 @@ seda_long[measure == "mean_achievement" & !subgroup %like% "gap", value := value
 seda_long <- dcast(seda_long, ... ~ measure, value.var = "value")
 
 #save intermediate, cleaned version
-#fwrite(seda_long, "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/inputs/seda_gcs_long.csv")
+dir.create('inputs')
+fwrite(seda_long, "inputs/seda_gcs_long.csv")
 
 #trim gap vars and ec vars to save space
 seda_long <- seda_long[!subgroup %like% "gap"]
 
 #save files separately for plotting
+dir.create('/inputs/')
 for(c.subgroup in unique(seda_long$subgroup)){
   print(c.subgroup)
   fwrite(seda_long[subgroup==c.subgroup],
-                   paste0("/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/inputs/seda_gcs_long_", c.subgroup, ".csv"))
+                   paste0("inputs/seda_gcs_long_", c.subgroup, ".csv"))
 }
 
 ########################################################################
@@ -121,9 +133,9 @@ for(c.race in c("all", "asian", "black", "hispanic", "native", "white")){
 ## Now pull in common core data
 ########################################################################
 #load in ccd data
-c("/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/reference/ccd_lea_052_1617_l_2a_11212017.csv",
-  "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/reference/ccd_lea_052_1718_l_1a_083118.csv",
-  "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/ref/ccd_lea_052_1819_l_1a_091019/ccd_lea_052_1819_l_1a_091019.csv") %>% 
+c("/reference/ccd_lea_052_1617_l_2a_11212017.csv",
+  "/reference/ccd_lea_052_1718_l_1a_083118.csv",
+  "/ref/ccd_lea_052_1819_l_1a_091019/ccd_lea_052_1819_l_1a_091019.csv") %>% 
   lapply(fread) %>% rbindlist() -> ccd
 
 ccd <- ccd[,.(LEAID, SCHOOL_YEAR,SEX, RACE_ETHNICITY, GRADE, STUDENT_COUNT, TOTAL_INDICATOR, LEA_NAME)]
@@ -161,20 +173,20 @@ ccd[, measure := "population"]
 ccd[, ccd := 1]
 
 #write ccd data
-fwrite(ccd, "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/ref/ccd_pops_for_agg.csv")
+fwrite(ccd, "ref/ccd_pops_for_agg.csv")
 census_covs_wide[, ccd := 0]
 ccd <- ccd[!GEOID %in% unique(census_covs_wide$GEOID)]
 census_covs_wide <- rbind(ccd, census_covs_wide, fill = T)
 
 
 #write combined file of census and ccd data
-fwrite(census_covs_wide, "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/ref/census_covs_wide.csv")
+fwrite(census_covs_wide, "ref/census_covs_wide.csv")
 
 
 #save code book for array jobs
 seda_codes <- data.table(code = unique(seda_long$subgroup))
-fwrite(seda_codes, "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/ref/seda_codes.csv")
+fwrite(seda_codes, "/ref/seda_codes.csv")
 
 seda_codes_fips <- expand.grid(code = unique(seda_codes$code), fip = unique(seda_long$fips))
-fwrite(seda_codes_fips, "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/ref/seda_codes_fips.csv")
+fwrite(seda_codes_fips, "/ref/seda_codes_fips.csv")
 

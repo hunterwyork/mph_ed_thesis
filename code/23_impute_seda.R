@@ -19,8 +19,8 @@ library(ggplot2)
 library(gridExtra)
 #library(udunits2)
 #library(itertools, lib.loc = "/home/j/temp/hyork/rlibs")
-library(tidycensus, lib.loc = "/home/j/temp/hyork/rlibs")
-library(missForest, lib.loc = "/home/j/temp/hyork/rlibs")
+library(tidycensus)
+library(missForest)
 library(doParallel)
 library(haven)
 registerDoParallel(cores=5)
@@ -38,12 +38,13 @@ c.fip <- codes[task_id, fip]
 ########################################################################
 
 #read data and subset to the state in question
-data <- fread(paste0("/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/inputs/seda_gcs_long.csv"))
+setwd( "/Users/hyork/Documents/projects/mph_ed_thesis")
+data <- fread(paste0("inputs/seda_gcs_long.csv"))
 data <- data[fips == c.fip]
 
 #read ideal full list of school dists. This is obviously significantly more than what's included in the data
 #this is a simplified shapefile for faster loading. There are missing slivers that make this less ideal for zoomed in views
-shp <- readRDS("/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/reference/schooldistrict_sy1819_tl19_simp.rds")
+shp <- readRDS("reference/schooldistrict_sy1819_tl19.rds")
 # "/home/j/WORK/01_covariates/02_inputs/education/update_2020/geospatial_final_project/reference/2013_Unified_Elementary_SD.shp" %>% 
 #   read_sf() -> shp
 
