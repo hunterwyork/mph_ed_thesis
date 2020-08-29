@@ -32,7 +32,7 @@ library(tidycensus)
 # seda_gcs[500001:nrow(seda_gcs)] %>% saveRDS("reference/eda_geodist_long_gcs_v30_2.rds")
 
 #read in smaller files
-seda_gcs <- list.files("reference", pattern = "eda_geodist_long_gcs_v30") %>% 
+seda_gcs <- list.files("reference", pattern = "eda_geodist_long_gcs_v30", full.names = T) %>% 
   lapply(readRDS) %>% 
   rbindlist()
 
@@ -70,7 +70,7 @@ fwrite(seda_long, "inputs/seda_gcs_long.csv")
 
 #trim gap vars and ec vars to save space
 seda_long <- seda_long[!subgroup %like% "gap"]
-
+ß
 #save files separately for plotting
 dir.create('/inputs/')
 for(c.subgroup in unique(seda_long$subgroup)){
