@@ -1,5 +1,10 @@
-library(data.table)
-library(stringr)
+dir <- "/scratch/network/hyork/projects/mph_ed_thesis/"
+system(paste0("sbatch --time=00:20:00 --job-name=thesis_load_data", 
+" --tasks=1 --cpus-per-task=1 --mem-per-cpu=30G ",
+"--chdir ", dir,
+" --export=ALL,script_path=", dir, "code/21_seda_inputs.R ",
+"/scratch/network/hyork/shells/base_r.sh"))
+
 
 
 c.proj <- "proj_team"

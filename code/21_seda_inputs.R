@@ -70,7 +70,7 @@ fwrite(seda_long, "inputs/seda_gcs_long.csv")
 
 #trim gap vars and ec vars to save space
 seda_long <- seda_long[!subgroup %like% "gap"]
-ß
+
 #save files separately for plotting
 dir.create('/inputs/')
 for(c.subgroup in unique(seda_long$subgroup)){
