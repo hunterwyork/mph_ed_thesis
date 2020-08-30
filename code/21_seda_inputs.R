@@ -9,7 +9,7 @@ library(stringr)
 library(rlang)
 library(haven)
 library(data.table)
-library(sf)
+library(sf)#
 library(dplyr)
 library(INLA)
 library(spdep)
@@ -72,7 +72,6 @@ fwrite(seda_long, "inputs/seda_gcs_long.csv")
 seda_long <- seda_long[!subgroup %like% "gap"]
 
 #save files separately for plotting
-dir.create('/inputs/')
 for(c.subgroup in unique(seda_long$subgroup)){
   print(c.subgroup)
   fwrite(seda_long[subgroup==c.subgroup],
@@ -185,8 +184,8 @@ fwrite(census_covs_wide, "ref/census_covs_wide.csv")
 
 #save code book for array jobs
 seda_codes <- data.table(code = unique(seda_long$subgroup))
-fwrite(seda_codes, "/ref/seda_codes.csv")
+fwrite(seda_codes, "ref/seda_codes.csv")
 
 seda_codes_fips <- expand.grid(code = unique(seda_codes$code), fip = unique(seda_long$fips))
-fwrite(seda_codes_fips, "/ref/seda_codes_fips.csv")
+fwrite(seda_codes_fips, "ref/seda_codes_fips.csv")
 
